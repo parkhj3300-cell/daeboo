@@ -3,30 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>index</title>
+<title>대부 장부</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#ffffff;--bg2:#f5f5f5;--bg3:#eeeeee;
   --text:#111111;--text2:#666666;--text3:#999999;
-  --border:#e0e0e0;--border2:#cccccc;
-  --accent:#111111;
+  --border:#e0e0e0;--border2:#cccccc;--accent:#111111;
   --success-bg:#e8f5e9;--success:#2e7d32;
   --warn-bg:#fff8e1;--warn:#f57f17;
   --danger-bg:#ffebee;--danger:#c62828;
   --radius:10px;--radius-sm:6px;
 }
-@media(prefers-color-scheme:dark){
-  :root{
-    --bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;
-    --text:#f0f0f0;--text2:#aaaaaa;--text3:#666666;
-    --border:#333333;--border2:#444444;--accent:#f0f0f0;
-    --success-bg:#1b3a1d;--success:#66bb6a;
-    --warn-bg:#3a2e00;--warn:#ffd54f;
-    --danger-bg:#3a1010;--danger:#ef5350;
-  }
-}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;
+  --text:#f0f0f0;--text2:#aaaaaa;--text3:#666666;
+  --border:#333333;--border2:#444444;--accent:#f0f0f0;
+  --success-bg:#1b3a1d;--success:#66bb6a;
+  --warn-bg:#3a2e00;--warn:#ffd54f;
+  --danger-bg:#3a1010;--danger:#ef5350;
+}}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;font-size:15px}
 body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;background:var(--bg);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10}
@@ -35,8 +32,10 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer}
 .btn:active{background:var(--bg3)}
 .btn-primary{background:var(--accent);color:var(--bg);border-color:var(--accent);width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:var(--radius);margin-top:20px}
+.btn-primary:active{opacity:0.85}
 .btn-ghost{border:none;background:none;color:var(--text2);padding:6px;cursor:pointer;font-size:22px;line-height:1}
 .btn-danger{border:1px solid var(--danger);background:var(--danger-bg);color:var(--danger);padding:6px 12px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
+.btn-edit{border:1px solid var(--border2);background:var(--bg);color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer}
 .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;cursor:pointer}
 .card:active{background:var(--bg2)}
 .card-static{cursor:default}
@@ -48,9 +47,9 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .b-partial{background:var(--warn-bg);color:var(--warn)}
 .b-unpaid{background:var(--danger-bg);color:var(--danger)}
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.metric{background:var(--bg2);border-radius:var(--radius);padding:14px;text-align:center}
-.metric-label{font-size:11px;color:var(--text2);margin-bottom:5px}
-.metric-val{font-size:19px;font-weight:600}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;text-align:center}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+.metric-val{font-size:18px;font-weight:600}
 .form-group{margin-top:14px}
 .form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
 .form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;background:var(--bg);color:var(--text);outline:none}
@@ -59,124 +58,216 @@ body{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .field-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
 .field-row:last-child{border-bottom:none}
 .field-label{color:var(--text2)}
-.field-val{font-weight:500;text-align:right}
-.month-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.field-val{font-weight:500;text-align:right;max-width:65%}
+.creditor-block{background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px}
+.creditor-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.creditor-block-title{font-size:13px;font-weight:500;color:var(--text2)}
+.btn-icon{width:28px;height:28px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-icon.remove{border-color:var(--danger);color:var(--danger)}
+.add-creditor-btn{width:100%;padding:9px;border:1px dashed var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;margin-top:4px}
+.month-section{margin-bottom:14px}
+.month-section-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.month-item{padding:9px 0;border-bottom:1px solid var(--border)}
 .month-item:last-child{border-bottom:none}
 .month-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .month-name{font-size:14px;font-weight:500}
 .month-amt{font-size:12px;color:var(--text2);margin-top:2px}
-.status-btns{display:flex;gap:5px;flex-shrink:0}
-.sbtn{padding:4px 9px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;background:var(--bg);color:var(--text2)}
+.status-btns{display:flex;gap:4px;flex-shrink:0}
+.sbtn{padding:4px 8px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:11px;font-weight:500;cursor:pointer;background:var(--bg);color:var(--text2)}
 .sbtn.on-full{background:var(--success-bg);color:var(--success);border-color:var(--success)}
 .sbtn.on-partial{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
 .sbtn.on-unpaid{background:var(--danger-bg);color:var(--danger);border-color:var(--danger)}
-.partial-row{display:none;align-items:center;gap:8px;padding:8px 0 2px;justify-content:flex-end}
+.partial-row{display:none;align-items:center;gap:8px;padding:6px 0 2px;justify-content:flex-end}
 .partial-row.show{display:flex}
-.partial-row input{width:130px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text)}
-.empty{text-align:center;padding:48px 0;color:var(--text3)}
-.empty-icon{font-size:36px;margin-bottom:10px}
+.partial-row input{width:120px;padding:6px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;background:var(--bg);color:var(--text)}
+.empty{text-align:center;padding:40px 0;color:var(--text3)}
 .section-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px;letter-spacing:0.3px}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;font-weight:600}
+.unpaid-list{margin-top:8px;border-top:1px solid var(--border);padding-top:8px}
+.unpaid-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:var(--danger)}
+.unpaid-label{color:var(--text2)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999}
 .toast.show{opacity:1}
-.loading{text-align:center;padding:40px 0;color:var(--text3);font-size:14px}
 </style>
 </head>
 <body>
-
-<div id="app"><div class="loading">불러오는 중...</div></div>
+<div id="app"><div style="text-align:center;padding:40px;color:#999">불러오는 중...</div></div>
 <div class="toast" id="toast"></div>
-
 <script>
 const SUPABASE_URL = 'https://orzvfpgogknktarkwxrt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_As0w0BZuF6hkCarYzZpa6g_hWt9JNl4';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let loans = [];
 let view = 'list';
 let detailId = null;
+let creditorInputs = [{name:'',principal:''}];
+let editMode = false;
 
 function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2000);
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function commas(n){ return Number(n||0).toLocaleString('ko-KR'); }
+function calcMI(principal,rate){ return Math.floor(Number(principal)*(rate/100)/12/100)*100; }
+
+function parsedMonths(loan){
+  if(!loan.months) return {};
+  if(typeof loan.months==='string') return JSON.parse(loan.months);
+  return JSON.parse(JSON.stringify(loan.months));
 }
 
-function commas(n){ return Number(n).toLocaleString('ko-KR'); }
-
-function monthlyInterest(loan){
-  return Math.round(loan.principal * (loan.rate/100) / 12);
-}
-
-function generateMonths(loan){
-  let months = loan.months || {};
-  let start = new Date(loan.loan_date);
-  let end = loan.repay_date ? new Date(loan.repay_date) : new Date();
-  let iday = loan.interest_day || 25;
-  let cur = new Date(start.getFullYear(), start.getMonth()+1, iday);
-  let keys = [];
-  while(cur <= end){
-    let key = cur.getFullYear()+'-'+(cur.getMonth()+1).toString().padStart(2,'0');
-    if(!months[key]) months[key] = {status:'unpaid', partial:0};
-    keys.push({key, date:new Date(cur)});
+function generateMonthKeys(loan){
+  let start=new Date(loan.loan_date);
+  let end=loan.repay_date?new Date(loan.repay_date):new Date();
+  let iday=loan.interest_day||25;
+  let cur=new Date(start.getFullYear(),start.getMonth()+1,iday);
+  let keys=[];
+  while(cur<=end){
+    let key=cur.getFullYear()+'-'+(cur.getMonth()+1).toString().padStart(2,'0');
+    keys.push({key,date:new Date(cur)});
     cur.setMonth(cur.getMonth()+1);
   }
   return keys;
 }
 
-async function loadLoans(){
-  const {data, error} = await db.from('loans').select('*').order('created_at', {ascending:false});
-  if(error){ alert('데이터 불러오기 실패: '+error.message); return; }
-  loans = data || [];
-  render();
+function getCreditorStatus(months,monthKey,creditorName){
+  return (months[monthKey]?.creditors?.[creditorName])||{status:'unpaid',partial:0};
 }
 
-async function saveLoan(loan){
-  const {error} = await db.from('loans').upsert(loan);
-  if(error){ alert('저장 실패: '+error.message); return false; }
+function calcUnpaid(loan){
+  let cs=Array.isArray(loan.creditors)?loan.creditors:[];
+  let months=parsedMonths(loan);
+  let keys=generateMonthKeys(loan);
+  let unpaid=[];
+  keys.forEach(m=>{
+    cs.forEach(c=>{
+      let md=getCreditorStatus(months,m.key,c.name);
+      let mi=calcMI(Number(c.principal||0),loan.rate);
+      if(md.status==='unpaid'){
+        unpaid.push({month:m.key,creditor:c.name,amount:mi,type:'unpaid'});
+      } else if(md.status==='partial'){
+        let remain=mi-Number(md.partial||0);
+        if(remain>0) unpaid.push({month:m.key,creditor:c.name,amount:remain,type:'partial'});
+      }
+    });
+  });
+  return unpaid;
+}
+
+async function loadLoans(){
+  const {data,error}=await db.from('loans').select('*').order('created_at',{ascending:false});
+  if(error){alert('불러오기 실패: '+error.message);return;}
+  loans=data||[];render();
+}
+
+// INSERT: id 없이 저장 (서버 자동 생성)
+async function insertLoan(payload){
+  // id 필드 제거 — generated always as identity 이므로 서버가 자동 부여
+  const {id:_,...rest}=payload;
+  const {data,error}=await db.from('loans').insert(rest).select().single();
+  if(error){alert('저장 실패: '+error.message);return null;}
+  return data;
+}
+
+// UPDATE: id 기준으로 해당 row만 업데이트
+async function updateLoan(id, payload){
+  // 기존 row fetch 후 병합 → months 등 모든 기존 데이터 보존
+  const {data:existing,error:fetchErr}=await db.from('loans').select('*').eq('id',id).single();
+  if(fetchErr){alert('불러오기 실패: '+fetchErr.message);return false;}
+  const merged={...existing,...payload,id};
+  const {error}=await db.from('loans').update(merged).eq('id',id);
+  if(error){alert('저장 실패: '+error.message);return false;}
+  return true;
+}
+
+// months만 업데이트 (이자 수령 처리용)
+async function updateMonths(id, months){
+  const {error}=await db.from('loans').update({months}).eq('id',id);
+  if(error){alert('저장 실패: '+error.message);return false;}
   return true;
 }
 
 async function removeLoan(id){
-  const {error} = await db.from('loans').delete().eq('id', id);
-  if(error){ alert('삭제 실패: '+error.message); return false; }
+  const {error}=await db.from('loans').delete().eq('id',id);
+  if(error){alert('삭제 실패: '+error.message);return false;}
   return true;
 }
 
 function render(){
-  const app = document.getElementById('app');
-  if(view==='add'){ app.innerHTML = renderAdd(); return; }
-  if(view==='detail'){ app.innerHTML = renderDetail(); return; }
-  app.innerHTML = renderList();
+  document.getElementById('app').innerHTML=
+    (view==='add'||view==='edit')?renderForm():
+    view==='detail'?renderDetail():
+    renderList();
 }
 
 /* ── LIST ── */
 function renderList(){
-  let active = loans.filter(l=>l.status==='진행');
-  let totalP = active.reduce((a,l)=>a+l.principal,0);
-  let totalMI = active.reduce((a,l)=>a+monthlyInterest(l),0);
+  let active=loans.filter(l=>l.status==='진행');
+  let totalP=active.reduce((a,l)=>{
+    let cs=Array.isArray(l.creditors)?l.creditors:[];
+    return a+cs.reduce((b,c)=>b+Number(c.principal||0),0);
+  },0);
+  let totalMI=active.reduce((a,l)=>{
+    let cs=Array.isArray(l.creditors)?l.creditors:[];
+    return a+cs.reduce((b,c)=>b+calcMI(Number(c.principal||0),l.rate),0);
+  },0);
 
-  let cards = loans.length ? loans.map(l=>`
-    <div class="card" onclick="detailId=${l.id};view='detail';render()">
+  let cards=loans.length?loans.map(l=>{
+    let cs=Array.isArray(l.creditors)?l.creditors:[];
+    let loanTotal=cs.reduce((a,c)=>a+Number(c.principal||0),0);
+    let miTotal=cs.reduce((a,c)=>a+calcMI(Number(c.principal||0),l.rate),0);
+    let unpaid=calcUnpaid(l);
+    let totalUnpaid=unpaid.reduce((a,u)=>a+u.amount,0);
+
+    let unpaidByCreditor={};
+    unpaid.forEach(u=>{
+      if(!unpaidByCreditor[u.creditor]) unpaidByCreditor[u.creditor]=[];
+      unpaidByCreditor[u.creditor].push(u);
+    });
+
+    let unpaidSection='';
+    if(unpaid.length>0){
+      let rows=Object.entries(unpaidByCreditor).map(([name,items])=>`
+        <div style="margin-bottom:6px">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:2px">${name}</div>
+          ${items.map(u=>`<div class="unpaid-row">
+            <span class="unpaid-label">${u.month}${u.type==='partial'?' (일부미수)':''}</span>
+            <span>${commas(u.amount)}원</span>
+          </div>`).join('')}
+        </div>`).join('');
+      unpaidSection=`<div class="unpaid-list">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;font-weight:600;color:var(--danger)">미수금 현황</span>
+          <span style="font-size:12px;font-weight:600;color:var(--danger)">합계 ${commas(totalUnpaid)}원</span>
+        </div>${rows}
+      </div>`;
+    }
+
+    return `<div class="card" onclick="detailId=${l.id};view='detail';render()">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <span style="font-size:16px;font-weight:600">${l.debtor}</span>
         <span class="badge ${l.status==='진행'?'b-active':'b-done'}">${l.status}</span>
       </div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">${l.creditor?'채권자 '+l.creditor+' · ':''} ${l.loan_date} ~ ${l.repay_date||'진행중'}</div>
-      <div style="display:flex;gap:16px;font-size:14px;flex-wrap:wrap">
-        <span>대출금 <strong>${commas(l.principal)}원</strong></span>
-        <span>연 <strong>${l.rate}%</strong></span>
-        <span>월이자 <strong>${commas(monthlyInterest(l))}원</strong></span>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:6px">${l.loan_date} ~ ${l.repay_date||'진행중'} · 연 ${l.rate}% · 매월 ${l.interest_day}일</div>
+      ${cs.map(c=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:2px 0">
+        <span style="color:var(--text2)">${c.name||'(미입력)'}</span>
+        <span>${commas(c.principal)}원 / 월 ${commas(calcMI(Number(c.principal||0),l.rate))}원</span>
+      </div>`).join('')}
+      <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:14px;font-weight:600">
+        <span>합계</span><span>${commas(loanTotal)}원 / 월 ${commas(miTotal)}원</span>
       </div>
-    </div>`).join('') : `<div class="empty"><div class="empty-icon">📋</div><div>등록된 채권이 없습니다<br>아래 버튼으로 추가하세요</div></div>`;
+      ${unpaidSection}
+    </div>`;
+  }).join(''):`<div class="empty"><div style="font-size:36px;margin-bottom:10px">📋</div><div>등록된 채권이 없습니다</div></div>`;
 
   return `
-  <div class="top-bar">
-    <h1>대부 장부</h1>
+  <div class="top-bar"><h1>대부 장부</h1>
     <div style="display:flex;gap:8px">
-      <button class="btn" onclick="loadLoans()">↻ 새로고침</button>
-      <button class="btn" onclick="view='add';render()">+ 새 채권</button>
+      <button class="btn" onclick="loadLoans()">↻</button>
+      <button class="btn" onclick="startAdd()">+ 새 채권</button>
     </div>
   </div>
   <div class="scroll-area">
@@ -189,164 +280,289 @@ function renderList(){
   </div>`;
 }
 
-/* ── ADD ── */
-function renderAdd(){
-  let today = new Date().toISOString().split('T')[0];
+/* ── FORM ── */
+function startAdd(){ editMode=false; creditorInputs=[{name:'',principal:''}]; view='add'; render(); }
+function startEdit(){
+  let loan=loans.find(l=>l.id===detailId);
+  if(!loan) return;
+  editMode=true;
+  creditorInputs=(Array.isArray(loan.creditors)?loan.creditors:[]).map(c=>({name:c.name||'',principal:String(c.principal||'')}));
+  if(!creditorInputs.length) creditorInputs=[{name:'',principal:''}];
+  view='edit'; render();
+}
+function addCreditorField(){ creditorInputs.push({name:'',principal:''}); render(); }
+function removeCreditorField(i){ creditorInputs.splice(i,1); render(); }
+function updateTotals(){
+  let rate=parseFloat(document.getElementById('f-rate')?.value)||0;
+  let totalP=creditorInputs.reduce((a,c)=>a+Number(c.principal||0),0);
+  let totalMI=creditorInputs.reduce((a,c)=>a+calcMI(Number(c.principal||0),rate),0);
+  let tp=document.getElementById('total-principal');
+  let tm=document.getElementById('total-mi');
+  if(tp) tp.textContent=commas(totalP)+'원';
+  if(tm) tm.textContent=commas(totalMI)+'원';
+}
+
+function renderForm(){
+  let loan=editMode?loans.find(l=>l.id===detailId):null;
+  let today=new Date().toISOString().split('T')[0];
+  let rate=editMode?loan.rate:0;
+  let totalP=creditorInputs.reduce((a,c)=>a+Number(c.principal||0),0);
+  let totalMI=creditorInputs.reduce((a,c)=>a+calcMI(Number(c.principal||0),rate),0);
+
+  let creditorBlocks=creditorInputs.map((c,i)=>`
+    <div class="creditor-block">
+      <div class="creditor-block-header">
+        <span class="creditor-block-title">채권자 ${i+1}</span>
+        ${creditorInputs.length>1?`<button class="btn-icon remove" onclick="removeCreditorField(${i});updateTotals()">−</button>`:''}
+      </div>
+      <div class="row2">
+        <div><input type="text" placeholder="이름" value="${c.name}"
+          oninput="creditorInputs[${i}].name=this.value"></div>
+        <div><input type="number" inputmode="numeric" placeholder="대출금(원)" value="${c.principal}"
+          oninput="creditorInputs[${i}].principal=this.value;updateTotals()"></div>
+      </div>
+    </div>`).join('');
+
   return `
   <div class="top-bar">
-    <button class="btn-ghost" onclick="view='list';render()">←</button>
-    <h1>새 채권 등록</h1>
+    <button class="btn-ghost" onclick="${editMode?'view=\'detail\'':'view=\'list\''};render()">←</button>
+    <h1>${editMode?'채권 수정':'새 채권 등록'}</h1>
     <div style="width:36px"></div>
   </div>
   <div class="scroll-area">
+    <div class="form-group"><label>채무자 *</label>
+      <input id="f-debtor" placeholder="홍길동" value="${editMode?loan.debtor:''}">
+    </div>
+    <div class="form-group">
+      <label>연이율 (%) * — 채권자 공통</label>
+      <input id="f-rate" type="number" inputmode="decimal" step="0.1" placeholder="12"
+        value="${editMode?loan.rate:''}" oninput="updateTotals()">
+    </div>
+    <div class="form-group">
+      <label>채권자별 대출금</label>
+      <div id="creditor-list">${creditorBlocks}</div>
+      <button class="add-creditor-btn" onclick="addCreditorField();updateTotals()">+ 채권자 추가</button>
+    </div>
+    <div class="card card-static" style="margin-top:14px">
+      <div class="total-row"><span style="color:var(--text2)">총 대출금</span><span id="total-principal">${commas(totalP)}원</span></div>
+      <div class="total-row" style="padding-top:0;border-top:1px solid var(--border)">
+        <span style="color:var(--text2)">총 월이자</span>
+        <span id="total-mi" style="color:var(--success)">${commas(totalMI)}원</span>
+      </div>
+    </div>
     <div class="row2">
-      <div class="form-group"><label>채무자 *</label><input id="f-debtor" placeholder="홍길동"></div>
-      <div class="form-group"><label>채권자</label><input id="f-creditor" placeholder="본인"></div>
+      <div class="form-group"><label>이자일 (매월)</label>
+        <input id="f-iday" type="number" inputmode="numeric" min="1" max="31" placeholder="25"
+          value="${editMode?loan.interest_day:''}">
+      </div>
+      <div class="form-group"><label>진행여부</label>
+        <select id="f-status">
+          <option value="진행" ${!editMode||loan.status==='진행'?'selected':''}>진행</option>
+          <option value="완료" ${editMode&&loan.status==='완료'?'selected':''}>완료</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group"><label>대출금 (원) *</label><input id="f-principal" type="number" inputmode="numeric" placeholder="10000000"></div>
     <div class="row2">
-      <div class="form-group"><label>연이율 (%) *</label><input id="f-rate" type="number" inputmode="decimal" step="0.1" placeholder="12"></div>
-      <div class="form-group"><label>이자일 (매월)</label><input id="f-iday" type="number" inputmode="numeric" min="1" max="31" placeholder="25"></div>
+      <div class="form-group"><label>대출일 *</label>
+        <input id="f-ldate" type="date" value="${editMode?loan.loan_date:today}">
+      </div>
+      <div class="form-group"><label>변제일</label>
+        <input id="f-rdate" type="date" value="${editMode&&loan.repay_date?loan.repay_date:''}">
+      </div>
     </div>
-    <div class="row2">
-      <div class="form-group"><label>대출일 *</label><input id="f-ldate" type="date" value="${today}"></div>
-      <div class="form-group"><label>변제일</label><input id="f-rdate" type="date"></div>
-    </div>
-    <div class="form-group"><label>진행여부</label>
-      <select id="f-status"><option value="진행">진행</option><option value="완료">완료</option></select>
-    </div>
-    <button class="btn-primary" onclick="addLoan()">등록하기</button>
+    <button class="btn-primary" onclick="${editMode?'saveLoanEdit()':'addLoan()'}">
+      ${editMode?'수정 저장':'등록하기'}
+    </button>
   </div>`;
 }
 
-async function addLoan(){
-  let d = {
-    debtor: document.getElementById('f-debtor').value.trim(),
-    creditor: document.getElementById('f-creditor').value.trim(),
-    status: document.getElementById('f-status').value,
-    principal: parseInt(document.getElementById('f-principal').value)||0,
-    rate: parseFloat(document.getElementById('f-rate').value)||0,
-    interest_day: parseInt(document.getElementById('f-iday').value)||25,
-    loan_date: document.getElementById('f-ldate').value,
-    repay_date: document.getElementById('f-rdate').value || null,
-    months: {}
+function getFormData(){
+  let creditors=creditorInputs.map(c=>({name:c.name.trim(),principal:parseInt(c.principal)||0})).filter(c=>c.name||c.principal);
+  let rate=parseFloat(document.getElementById('f-rate').value)||0;
+  let debtor=document.getElementById('f-debtor').value.trim();
+  let ldate=document.getElementById('f-ldate').value;
+  if(!debtor){alert('채무자를 입력하세요.');return null;}
+  if(!rate){alert('연이율을 입력하세요.');return null;}
+  if(!ldate){alert('대출일을 입력하세요.');return null;}
+  if(!creditors.length){alert('채권자를 최소 1명 입력하세요.');return null;}
+  if(creditors.some(c=>!c.principal)){alert('모든 채권자의 대출금을 입력하세요.');return null;}
+  return {
+    debtor, creditors,
+    status:document.getElementById('f-status').value,
+    rate,
+    principal:creditors.reduce((a,c)=>a+c.principal,0),
+    interest_day:parseInt(document.getElementById('f-iday').value)||25,
+    loan_date:ldate,
+    repay_date:document.getElementById('f-rdate').value||null,
   };
-  if(!d.debtor){ alert('채무자를 입력하세요.'); return; }
-  if(!d.principal){ alert('대출금을 입력하세요.'); return; }
-  if(!d.loan_date){ alert('대출일을 입력하세요.'); return; }
-  if(!d.rate){ alert('연이율을 입력하세요.'); return; }
-  const btn = document.querySelector('.btn-primary');
-  btn.textContent = '저장 중...'; btn.disabled = true;
-  const ok = await saveLoan(d);
-  if(ok){ toast('등록 완료!'); await loadLoans(); view='list'; render(); }
-  else{ btn.textContent='등록하기'; btn.disabled=false; }
+}
+
+async function addLoan(){
+  let d=getFormData(); if(!d) return;
+  d.months={};
+  const btn=document.querySelector('.btn-primary');
+  btn.textContent='저장 중...';btn.disabled=true;
+  const result=await insertLoan(d);
+  if(result){toast('등록 완료!');await loadLoans();view='list';render();}
+  else{btn.textContent='등록하기';btn.disabled=false;}
+}
+
+async function saveLoanEdit(){
+  let d=getFormData(); if(!d) return;
+  const btn=document.querySelector('.btn-primary');
+  btn.textContent='저장 중...';btn.disabled=true;
+  // months는 updateLoan 내부에서 기존 것 유지
+  const ok=await updateLoan(detailId, d);
+  if(ok){toast('수정 완료!');await loadLoans();view='detail';render();}
+  else{btn.textContent='수정 저장';btn.disabled=false;}
 }
 
 /* ── DETAIL ── */
 function renderDetail(){
-  let loan = loans.find(l=>l.id===detailId);
-  if(!loan){ view='list'; render(); return ''; }
-  let months = generateMonths(loan);
-  let mi = monthlyInterest(loan);
-  let totalExp = months.length * mi;
-  let totalRec = months.reduce((a,m)=>{
-    let md = (loan.months||{})[m.key];
-    if(!md) return a;
-    if(md.status==='full') return a+mi;
-    if(md.status==='partial') return a+Number(md.partial||0);
-    return a;
-  },0);
-  let pct = totalExp ? Math.round(totalRec/totalExp*100) : 0;
+  let loan=loans.find(l=>l.id===detailId);
+  if(!loan){view='list';render();return '';}
+  let cs=Array.isArray(loan.creditors)?loan.creditors:[];
+  let months=parsedMonths(loan);
+  let monthKeys=generateMonthKeys(loan);
+  let totalP=cs.reduce((a,c)=>a+Number(c.principal||0),0);
+  let totalMI=cs.reduce((a,c)=>a+calcMI(Number(c.principal||0),loan.rate),0);
 
-  let rows = months.length ? months.map(m=>{
-    let md = (loan.months||{})[m.key]||{status:'unpaid',partial:0};
-    let label = m.date.getFullYear()+'년 '+(m.date.getMonth()+1)+'월';
-    let badge = md.status==='full'
-      ? `<span class="badge b-full">완납</span>`
-      : md.status==='partial'
-        ? `<span class="badge b-partial">일부(${commas(md.partial)}원)</span>`
-        : `<span class="badge b-unpaid">미수</span>`;
-    return `<div class="month-item">
-      <div class="month-top">
-        <div>
-          <div class="month-name">${label} ${badge}</div>
-          <div class="month-amt">이자 ${commas(mi)}원</div>
+  let grandExp=0,grandRec=0;
+  cs.forEach(c=>{
+    let mi=calcMI(Number(c.principal||0),loan.rate);
+    grandExp+=monthKeys.length*mi;
+    monthKeys.forEach(m=>{
+      let md=getCreditorStatus(months,m.key,c.name);
+      if(md.status==='full') grandRec+=mi;
+      else if(md.status==='partial') grandRec+=Number(md.partial||0);
+    });
+  });
+  let pct=grandExp?Math.round(grandRec/grandExp*100):0;
+
+  let creditorSections=cs.map(c=>{
+    let mi=calcMI(Number(c.principal||0),loan.rate);
+    let cRec=monthKeys.reduce((a,m)=>{
+      let md=getCreditorStatus(months,m.key,c.name);
+      if(md.status==='full') return a+mi;
+      if(md.status==='partial') return a+Number(md.partial||0);
+      return a;
+    },0);
+    let cExp=monthKeys.length*mi;
+    let cPct=cExp?Math.round(cRec/cExp*100):0;
+
+    let rows=monthKeys.length?monthKeys.map(m=>{
+      let md=getCreditorStatus(months,m.key,c.name);
+      let label=m.date.getFullYear()+'년 '+(m.date.getMonth()+1)+'월';
+      let badge=md.status==='full'
+        ?`<span class="badge b-full">완납</span>`
+        :md.status==='partial'
+          ?`<span class="badge b-partial">일부(${commas(md.partial)}원)</span>`
+          :`<span class="badge b-unpaid">미수</span>`;
+      let ckey=encodeURIComponent(c.name);
+      return `<div class="month-item">
+        <div class="month-top">
+          <div>
+            <div class="month-name">${label} ${badge}</div>
+            <div class="month-amt">이자 ${commas(mi)}원</div>
+          </div>
+          <div class="status-btns">
+            <button class="sbtn ${md.status==='full'?'on-full':''}" onclick="setStatus('${m.key}','${ckey}','full')">완납</button>
+            <button class="sbtn ${md.status==='partial'?'on-partial':''}" onclick="togglePartial('${m.key}','${ckey}')">일부</button>
+            <button class="sbtn ${md.status==='unpaid'?'on-unpaid':''}" onclick="setStatus('${m.key}','${ckey}','unpaid')">미수</button>
+          </div>
         </div>
-        <div class="status-btns">
-          <button class="sbtn ${md.status==='full'?'on-full':''}" onclick="setStatus('${m.key}','full')">완납</button>
-          <button class="sbtn ${md.status==='partial'?'on-partial':''}" onclick="togglePartial('${m.key}')">일부</button>
-          <button class="sbtn ${md.status==='unpaid'?'on-unpaid':''}" onclick="setStatus('${m.key}','unpaid')">미수</button>
+        <div class="partial-row ${md.status==='partial'?'show':''}" id="pr-${m.key}-${ckey}">
+          <input id="pi-${m.key}-${ckey}" type="number" inputmode="numeric" placeholder="수령금액" value="${md.partial||''}">
+          <button class="btn" onclick="savePartial('${m.key}','${ckey}')">저장</button>
         </div>
-      </div>
-      <div class="partial-row ${md.status==='partial'?'show':''}" id="pr-${m.key}">
-        <input id="pi-${m.key}" type="number" inputmode="numeric" placeholder="수령금액 입력" value="${md.partial||''}">
-        <button class="btn" onclick="savePartial('${m.key}')">저장</button>
-      </div>
+      </div>`;
+    }).join(''):`<div style="padding:12px 0;color:var(--text3);font-size:13px;text-align:center">이자 회차 없음</div>`;
+
+    return `<div class="month-section">
+      <div class="month-section-title">
+        <span>${c.name||'(미입력)'}</span>
+        <span style="font-size:12px;font-weight:400">대출 ${commas(c.principal)}원 · 월 ${commas(mi)}원 · 수령 ${cPct}%</span>
+      </div>${rows}
     </div>`;
-  }).join('') : `<div class="empty"><div>이자 회차 없음<br>(대출일 다음 달부터 생성)</div></div>`;
+  }).join('');
 
   return `
   <div class="top-bar">
     <button class="btn-ghost" onclick="view='list';render()">←</button>
     <h1>${loan.debtor}</h1>
-    <button class="btn-danger" onclick="deleteLoan(${loan.id})">삭제</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-edit" onclick="startEdit()">수정</button>
+      <button class="btn-danger" onclick="deleteLoan(${loan.id})">삭제</button>
+    </div>
   </div>
   <div class="scroll-area">
     <div class="card card-static" style="margin-bottom:14px">
       <div class="field-row"><span class="field-label">채무자</span><span class="field-val">${loan.debtor}</span></div>
-      <div class="field-row"><span class="field-label">채권자</span><span class="field-val">${loan.creditor||'-'}</span></div>
-      <div class="field-row"><span class="field-label">대출금</span><span class="field-val">${commas(loan.principal)}원</span></div>
       <div class="field-row"><span class="field-label">연이율</span><span class="field-val">${loan.rate}%</span></div>
-      <div class="field-row"><span class="field-label">월이자</span><span class="field-val" style="color:var(--success)">${commas(mi)}원</span></div>
       <div class="field-row"><span class="field-label">이자일</span><span class="field-val">매월 ${loan.interest_day}일</span></div>
       <div class="field-row"><span class="field-label">대출일</span><span class="field-val">${loan.loan_date||'-'}</span></div>
       <div class="field-row"><span class="field-label">변제일</span><span class="field-val">${loan.repay_date||'진행중'}</span></div>
-      <div class="field-row"><span class="field-label">진행여부</span><span class="field-val"><span class="badge ${loan.status==='진행'?'b-active':'b-done'}">${loan.status}</span></span></div>
+      <div class="field-row"><span class="field-label">진행여부</span><span class="field-val">
+        <span class="badge ${loan.status==='진행'?'b-active':'b-done'}">${loan.status}</span>
+      </span></div>
+      <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:8px">
+        ${cs.map(c=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0">
+          <span style="color:var(--text2)">${c.name||'(미입력)'}</span>
+          <span>${commas(c.principal)}원 / 월 ${commas(calcMI(Number(c.principal||0),loan.rate))}원</span>
+        </div>`).join('')}
+        <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:14px;font-weight:600">
+          <span>합계</span><span>${commas(totalP)}원 / 월 ${commas(totalMI)}원</span>
+        </div>
+      </div>
     </div>
     <div class="metrics" style="margin-bottom:14px">
-      <div class="metric"><div class="metric-label">수령 예정</div><div class="metric-val">${commas(totalExp)}원</div></div>
-      <div class="metric"><div class="metric-label">실수령 (${pct}%)</div><div class="metric-val" style="color:var(--success)">${commas(totalRec)}원</div></div>
+      <div class="metric"><div class="metric-label">수령 예정 합계</div><div class="metric-val">${commas(grandExp)}원</div></div>
+      <div class="metric"><div class="metric-label">실수령 (${pct}%)</div><div class="metric-val" style="color:var(--success)">${commas(grandRec)}원</div></div>
     </div>
-    <div class="section-title">월별 이자 수령 현황</div>
-    <div class="card card-static">${rows}</div>
+    <div class="section-title">채권자별 월이자 수령 현황</div>
+    <div class="card card-static">${creditorSections||'<div class="empty">채권자 없음</div>'}</div>
   </div>`;
 }
 
-async function setStatus(key, status){
-  let loan = loans.find(l=>l.id===detailId);
-  let months = JSON.parse(JSON.stringify(loan.months||{}));
-  if(!months[key]) months[key]={status:'unpaid',partial:0};
-  months[key].status = status;
-  if(status!=='partial') months[key].partial = 0;
-  const ok = await saveLoan({id:loan.id, months});
-  if(ok){ loan.months = months; toast(status==='full'?'완납 처리':status==='unpaid'?'미수 처리':'저장 완료'); render(); }
+async function setStatus(monthKey,ckey,status){
+  let loan=loans.find(l=>l.id===detailId);
+  let months=parsedMonths(loan);
+  let cname=decodeURIComponent(ckey);
+  if(!months[monthKey]) months[monthKey]={creditors:{}};
+  if(!months[monthKey].creditors) months[monthKey].creditors={};
+  months[monthKey].creditors[cname]={status,partial:status==='partial'?(months[monthKey].creditors[cname]?.partial||0):0};
+  const ok=await updateMonths(loan.id,months);
+  if(ok){loan.months=months;toast(status==='full'?'완납 처리':status==='unpaid'?'미수 처리':'변경 완료');render();}
 }
 
-async function togglePartial(key){
-  let loan = loans.find(l=>l.id===detailId);
-  let months = JSON.parse(JSON.stringify(loan.months||{}));
-  if(!months[key]) months[key]={status:'unpaid',partial:0};
-  months[key].status = 'partial';
-  loan.months = months;
-  render();
-  setTimeout(()=>{ let inp=document.getElementById('pi-'+key); if(inp) inp.focus(); },50);
+async function togglePartial(monthKey,ckey){
+  let loan=loans.find(l=>l.id===detailId);
+  let months=parsedMonths(loan);
+  let cname=decodeURIComponent(ckey);
+  if(!months[monthKey]) months[monthKey]={creditors:{}};
+  if(!months[monthKey].creditors) months[monthKey].creditors={};
+  if(!months[monthKey].creditors[cname]) months[monthKey].creditors[cname]={status:'unpaid',partial:0};
+  months[monthKey].creditors[cname].status='partial';
+  loan.months=months;render();
+  setTimeout(()=>{let inp=document.getElementById(`pi-${monthKey}-${ckey}`);if(inp)inp.focus();},50);
 }
 
-async function savePartial(key){
-  let val = parseInt(document.getElementById('pi-'+key).value)||0;
-  let loan = loans.find(l=>l.id===detailId);
-  let months = JSON.parse(JSON.stringify(loan.months||{}));
-  if(!months[key]) months[key]={status:'partial',partial:0};
-  months[key].partial = val;
-  months[key].status = 'partial';
-  const ok = await saveLoan({id:loan.id, months});
-  if(ok){ loan.months = months; toast('저장 완료!'); render(); }
+async function savePartial(monthKey,ckey){
+  let val=parseInt(document.getElementById(`pi-${monthKey}-${ckey}`).value)||0;
+  let loan=loans.find(l=>l.id===detailId);
+  let months=parsedMonths(loan);
+  let cname=decodeURIComponent(ckey);
+  if(!months[monthKey]) months[monthKey]={creditors:{}};
+  if(!months[monthKey].creditors) months[monthKey].creditors={};
+  months[monthKey].creditors[cname]={status:'partial',partial:val};
+  const ok=await updateMonths(loan.id,months);
+  if(ok){loan.months=months;toast('저장 완료!');render();}
 }
 
 async function deleteLoan(id){
   if(!confirm('이 채권을 삭제하시겠습니까?')) return;
-  const ok = await removeLoan(id);
-  if(ok){ toast('삭제 완료'); await loadLoans(); view='list'; render(); }
+  const ok=await removeLoan(id);
+  if(ok){toast('삭제 완료');await loadLoans();view='list';render();}
 }
 
 loadLoans();
