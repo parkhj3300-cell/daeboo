@@ -297,6 +297,14 @@ function renderList(){
     });
   }
 
+  // 정렬: 미입금 있는 채권 먼저, 그 다음 이자일 오름차순
+  filteredLoans=[...filteredLoans].sort((a,b)=>{
+    let aUnpaid=calcUnpaid(a).length>0?0:1;
+    let bUnpaid=calcUnpaid(b).length>0?0:1;
+    if(aUnpaid!==bUnpaid) return aUnpaid-bUnpaid;
+    return (a.interest_day||25)-(b.interest_day||25);
+  });
+
   let cards=filteredLoans.length?filteredLoans.map(l=>{
     let cs=Array.isArray(l.creditors)?l.creditors:[];
     let loanTotal=cs.reduce((a,c)=>a+Number(c.principal||0),0);
